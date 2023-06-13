@@ -1,0 +1,100 @@
+---
+title: "Altitudinal Discrepancy in Snowfall Amount"
+author: "Tu Pham"
+date: "2023-06-11"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Abstract
+
+This study aims to analyze the influence of altitude on the snowfall amount in Ohio, the United States. In this study, I use simple linear regression, analysis of variance, pairwise t tests, and side-by-side boxplots to serve this purpose. With simple linear regression, I recognize that the altitude and the snowfall amount do not have a linear relationship. I classify the data into three altitude levels, including low-altitude level, medium-altitude level, and high-altitude level, to examine the data more closely. By using analysis of variance, I see that there is a remarkable difference in the snowfall amount among the three altitude levels. With pairwise t tests, I scrutinize this difference in depth and realize that while the difference in snowfall amount between low-altitude level and medium-altitude level is minimal, there is a significant distinction in snowfall amount between medium-altitude level and high-altitude level. Finally, I visualize the data distribution in the three altitude levels by using side-by-side boxplots. After analyzing the data and obtaining the results, I come to a deduction regarding the snowfall in Ohio: with an increase in the value of the altitude, there is a surge in accelerated rate in the corresponding snowfall amount.
+
+## 2. Introduction and Background
+
+In this study, I examine whether there is a remarkable difference in snowfall amount in different altitudes in Ohio and analyze the effect of altitude on snowfall amount as well as the significance of this effect as the altitude increases.
+
+The data used for this study is the snowfall amount in different locations with different altitudes in Ohio and was collected from NOAA Climate Data Online, the climatological source that is reliable and free to use. The altitude in each location was measured in meters and the snowfall amount in each location was quantified in inches.
+
+This study is an analytical study with emphasis on using simple linear regression, analysis of variance, and pairwise t tests as the main analysis methods. With simple linear regression, I examine whether the relationship between the snowfall amount and the altitude is linear or not. If this is not a linear relationship, I need to categorize the data collected into different groups for clearer comprehension of the data. In this study, I would classify the collected data into three different altitude levels (low-altitude level, medium-altitude level, and high-altitude level). Analysis of variance serves to test if there is disparity in the effect of a factor among its different levels and can be used for more than two levels of that factor. Therefore, this method of analysis can be applied to examine whether there is significant difference in the snowfall amount among the three levels of altitude in this study. The purpose of the pairwise t tests in this study is to perform comparison in each pair of altitude levels among the three levels and to further examine whether the snowfall amount in the two altitude levels in each pair is remarkably different from each other or not.
+
+The results obtained in this study can be affected by the following factors. The first factor is the accuracy of the data. If the data was not accurately collected, the results may no longer be reliable and cannot be generalized to the snowfall in all possible altitudes in the entire area of Ohio. The second factor is regarding the method consistency. The data should be collected fairly with similar methods; otherwise, the comparison may become biased.
+
+## 3. The Sample Study
+
+The collected data on snowfall amount is from many different locations with different altitudes in Ohio over five years from the beginning of 2018 to the beginning of 2023.
+
+If the relationship between the snowfall amount and the altitude is not linear, I use the following criteria to classify the collected data into three different levels, including low-altitude level, medium-altitude level, and high-altitude level. Low altitude is the value that is not higher than 240 meters above mean sea level. Medium altitude is the value that is higher than 240 meters but not higher than 300 meters above mean sea level. High altitude is the value that is higher than 300 meters above mean sea level. I ensure that the total number of data points and the number of data points for each level are higher than 100 to guarantee that this study is conducted with a high degree of accuracy and the obtained results are reliable.
+
+For this study, the independent variable is each location's altitude, which is in one out of the three levels (low altitude, medium altitude, and high altitude), and the dependent variable is the snowfall amount in each examined location. I used the following R code to read and classify data.
+
+```{r}
+SnowfallData <- read.csv("SnowfallData.csv")
+Snowfall <- SnowfallData$SNOW # Total annual snowfall (in inches)
+SnowfallData$LEVEL <- ordered(SnowfallData$LEVEL, levels = c("high", "medium", "low"))
+Level <- SnowfallData$LEVEL
+levels(Level)
+Altitude <- SnowfallData$Altitude # Altitude above mean sea level (in meters)
+```
+
+## 4. Analysis
+
+By using R, I create a simple linear regression model for the snowfall amount against the altitude to examine whether there is a linear relationship between the snowfall amount and the altitude. The plot of the snowfall amount against the altitude with the simple linear regression model represented by the line of best fit and the parameters are shown by running the R code below.
+
+```{r}
+SnowLinReg <- lm(SNOW ~ ALTITUDE, data = SnowfallData)
+summary(SnowLinReg)
+plot(x = SnowfallData$ALTITUDE, y = SnowfallData$SNOW, main = "PLOT OF SNOWFALL AMOUNT BY ALTITUDE", xlab = "Snowfall Altitude (in meters)", ylab = "Snowfall Amount (in inches)")
+abline(SnowLinReg)
+```
+
+The value of adjusted R-squared for this predictive model is 0.04228, which is close to 0 and far from 1, so this predictive model is not an appropriate model for the collected data. Additionally, in the above figure, there is sufficiently large number of data points that are not close to the line of best fit. Therefore, the relationship between the snowfall amount and the altitude is non-linear. I classify the collected data into three different levels based on the criteria specified in The Sample Study section and perform statistical analysis as explained below. I use analysis of variance to analyze the effect that different levels of altitude have on snowfall amount. In this study, the null hypothesis is that there is no remarkable distinction in snowfall amount among the three levels of altitude. The alternative hypothesis is that there is noticeable difference in the snowfall amount among the three altitude levels. In this analysis, the confidence level $\alpha$ is equal to 0.05. The output of analysis of variance is shown by running the R code below.
+
+```{r}
+SnowAov <- aov(SNOW ~ LEVEL, data = SnowfallData)
+summary(SnowAov)
+```
+
+According to the output, the F statistic's p-value is Pr(\>F), which is equal to $8.46 \times 10^{-8}$.
+
+I use the pairwise t tests in order to perform pairwise comparison in each pair of altitude levels among the three altitude levels. For each test, the null hypothesis is that there is no remarkable difference in the snowfall amount between the two levels of altitude in the examined pair, and the alternative hypothesis is that the snowfall amount in these two altitude levels are significantly different from each other. The confidence level $\alpha$ in each test is equal to 0.05. The output of these tests is obtained by running the R code below.
+
+```{r}
+pairwise.t.test(Snowfall, Level, p.adj = "none")
+```
+
+According to the output, I obtain the following p-values. The p-value for pair of high altitude and medium altitude is $3.5 \times 10^{-6}$. The p-value for pair of high altitude and low altitude is $9.8 \times 10^{-8}$. The p-value for pair of low altitude and mean altitude is $0.57$.
+
+In order to visualize the different distributions of snowfall amount for the three levels of altitude, I create the side-by-side boxplots from the data collected with R. These boxplots are shown by running the R code below.
+
+```{r}
+boxplot(SNOW ~ LEVEL, data = SnowfallData, xlab = "Altitude Level", ylab = "Snowfall Amount (in inches)")
+```
+
+The mean and standard deviation of snowfall amount for each level of altitude is calculated by running the R code below.
+
+```{r}
+mean(HighSnowfall$SNOW)
+mean(MediumSnowfall$SNOW)
+mean(LowSnowfall$SNOW)
+sd(HighSnowfall$SNOW)
+sd(MediumSnowfall$SNOW)
+sd(LowSnowfall$SNOW)
+```
+
+## 5. Results
+
+By performing the simple linear regression model, I observe that the snowfall amount and the altitude do not have a linear relationship.
+
+In the analysis of variance, the F statistic's p-value obtained is $8.46 \times 10^{-8}$, which is minimal and much smaller than the confidence level $\alpha = 0.05$, so the null hypothesis should be rejected, and the alternative hypothesis can be adopted. Therefore, there is a noticeable difference in the snowfall amount among the three altitude levels and the altitude of a location is likely to have a remarkable influence on the snowfall amount at that location.
+
+In the pairwise t tests, the p-value for pair of high altitude and low altitude is equal to $3.5 \times 10^{-6}$, which is very low and smaller than the confidence level $\alpha = 0.05$. The p-value for pair of high altitude and medium altitude is $9.8 \times 10^{-8}$; this value is even smaller than that for pair of high altitude and low altitude. With these obtained values, I can reject the null hypotheses for pair of high altitude and low altitude, pair of high altitude and medium altitude and adopt the corresponding alternative hypotheses. Therefore, the snowfall amount in high altitude is significantly different from both snowfall amount in low altitude and snowfall amount in medium altitude. However, the p-value for pair of low altitude and medium altitude is quite high (0.57), which is much higher than the confidence level $\alpha = 0.05$, so the null hypothesis for pair of medium altitude and low altitude should not be rejected. This may show that snowfall amount in the medium-altitude level is not much different from snowfall amount in the low-altitude level.
+
+The mean of snowfall amount increases slightly as the altitude rises from low-altitude level to medium-altitude level while there is a significant increase in the mean of snowfall amount when the altitude rises to high-altitude level. Based on the box plots as well as the calculated standard deviations, the spread of the data distribution increases in the following order: medium-altitude level, low-altitude level, high-altitude level.
+
+## 6. Conclusions
+
+Based on the results, it is reasonable to indicate that there is a noticeable difference in snowfall amount among the three different levels of altitudes in Ohio. The snowfall amount is likely to be higher as the altitude increases. There is also a difference in the increase rate of the snowfall amount. As the altitude increases from the low-altitude level to the medium-altitude level, there is only a slight decrease in the snowfall amount. However, the increase in snowfall amount becomes much more significant as the altitude increases from the medium-altitude level to the high-altitude level. Therefore, it is plausible to recognize the pattern in snowfall amount by change in altitude to predict the altitude's effect on snowfall amount as well as its significance: as the altitude becomes higher, not only does snowfall amount tend to rise but the altitude's effect on the snowfall amount may also become more significant.
